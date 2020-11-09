@@ -79,6 +79,7 @@ router.post('/register',(req,res) =>{
 router.post('/login',(req,res)=>{
     
     const { email,password } = req.body;
+    var errors;
    
     User.findOne({ where: {email:email }})
     .then(user => {
@@ -94,7 +95,7 @@ router.post('/login',(req,res)=>{
           })
           let password2 = token.decode();
           console.log(password2);
-          var errors = [];
+          
 
           if(password === password2){
             res.redirect('/users/dashboard')
@@ -102,21 +103,29 @@ router.post('/login',(req,res)=>{
 
           if(password !== password2)
           {
-             errors.push({ msg: 'invalid username or password ' })             
+             errors = 'invalid username or password '           
           }   
-         if(errors.length > 0){
+         if(errors !== 'undefined'){
               console.log(errors)
             res.render('login',{ 
-                errors,
-                email,
-                password         
+                errors:errors,
+                email:req.body.email,
+                password: req.body.password         
             })
         }
           
           
         
     })
-    .catch(err => console.log(err))
+    .catch(err => {
+        errors=err;
+    res.render('login',{ 
+                errors:errors,
+                email:req.body.email,
+                password: req.body.password         
+            })
+    
+    }))
     
 })
 
